@@ -1,0 +1,97 @@
+import java.util.*;
+import java.io.*;
+
+public class ToDoManager {
+    private static final String FILE_NAME = "tasks.txt";
+    private List<String> tasks;
+
+    public ToDoManager() {
+        tasks = new ArrayList<>();
+        loadTasks();
+    }
+
+    public void addTask(String task) {
+        tasks.add(task);
+        saveTasks();
+        System.out.println("Task added: " + task);
+    }
+
+    public void removeTask(int index) {
+        if (index >= 0 && index < tasks.size()) {
+            String removed = tasks.remove(index);
+            saveTasks();
+            System.out.println("Removed task: " + removed);
+        } else {
+            System.out.println("Invalid index.");
+        }
+    }
+
+    public void listTasks() {
+        if (tasks.isEmpty()) {
+            System.out.println("No tasks found.");
+        } else {
+            for (int i = 0; i < tasks.size(); i++) {
+                System.out.println(i + ": " + tasks.get(i));
+            }
+        }
+    }
+
+    private void saveTasks() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME))) {
+            for (String task : tasks) {
+                writer.write(task);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to save tasks.");
+        }
+    }
+
+    private void loadTasks() {
+        File file = new File(FILE_NAME);
+        if (!file.exists()) return;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                tasks.add(line);
+            }
+        } catch (IOException e) {
+            System.err.println("Failed to load tasks.");
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        ToDoManager manager = new ToDoManager();
+        System.out.println("Welcome to ToDo Manager!");
+
+        while (true) {
+            System.out.println("\nOptions: add, remove, list, exit");
+            System.out.print("> ");
+            String input = scanner.nextLine().trim();
+
+            switch (input.toLowerCase()) {
+                case "add":
+                    System.out.print("Enter task: ");
+                    String task = scanner.nextLine().trim();
+                    manager.addTask(task);
+                    break;
+                case "remove":
+                    manager.listTasks();
+                    System.out.print("Enter index to remove: ");
+                    int index = Integer.parseInt(scanner.nextLine());
+                    manager.removeTask(index);
+                    break;
+                case "list":
+                    manager.listTasks();
+                    break;
+                case "exit":
+                    System.out.println("Goodbye!");
+                    return;
+                default:
+                    System.out.println("Unknown command.");
+            }
+        }
+    }
+}
